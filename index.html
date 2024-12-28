@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compound Interest Calculator with Inflation</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Compound Interest Calculator</h1>
+        <form id="calc-form">
+            <label for="principal">Principal Amount (₹):</label>
+            <input type="number" id="principal" required>
+
+            <label for="rate">Annual Interest Rate (%):</label>
+            <input type="number" id="rate" required>
+
+            <label for="years">Number of Years:</label>
+            <input type="number" id="years" required>
+
+            <label for="inflation">Annual Inflation Rate (%):</label>
+            <input type="number" id="inflation" required>
+
+            <button type="button" id="calculate">Calculate</button>
+        </form>
+
+        <h2>Results</h2>
+        <div id="results">
+            <div class="result-section">
+                <h3>Actual Value</h3>
+                <p id="actual-value"></p>
+            </div>
+            <div class="result-section">
+                <h3>Inflation-Adjusted Value</h3>
+                <p id="adjusted-value"></p>
+            </div>
+        </div>
+
+        <canvas id="chart" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        document.getElementById('calculate').addEventListener('click', function() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            const years = parseInt(document.getElementById('years').value);
+            const inflation = parseFloat(document.getElementById('inflation').value) / 100;
+
+            let adjustedValues = [];
+            let nominalValues = [];
+
+            let finalAmount = principal;
+            for (let i = 1; i <= years; i++) {
+                finalAmount *= (1 + rate);
+                nominalValues.push(finalAmount.toFixed(2));
+                adjustedValues.push((finalAmount / Math.pow((1 + inflation), i)).toFixed(2));
+            }
+
+            // Display the results
+            const actualFinalValue = nominalValues[nominalValues.length - 1];
+            const adjustedFinalValue = adjustedValues[adjustedValues.length - 1];
+
+            document.getElementById('actual-value').textContent = `The actual value after ${years} years is ₹${actualFinalValue}`;
+            document.getElementById('adjusted-value').textContent = `The inflation-adjusted value after ${years} years is ₹${adjustedFinalValue}`;
+
+            // Create a chart
+            const ctx = document.getElementById('chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: years }, (_, i) => i + 1),
+                    datasets: [
+                        {
+                            label: 'Nominal Value (₹)',
+                            data: nominalValues,
+                            borderColor: 'blue',
+                            fill: false,
+                        },
+                        {
+                            label: 'Inflation-Adjusted Value (₹)',
+                            data: adjustedValues,
+                            borderColor: 'red',
+                            fill: false,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years',
+                            },
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Amount (₹)',
+                            },
+                        },
+                    },
+                },
+            });
+        });
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f7f9fc;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #results {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .result-section {
+            margin-bottom: 20px;
+        }
+    </style>
+</body>
+</html>
